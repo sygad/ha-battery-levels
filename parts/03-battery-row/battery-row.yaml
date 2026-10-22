@@ -1,0 +1,96 @@
+# Part 3 · Battery row
+# Explained in: parts/03-battery-row/README.md
+# Where it goes: this is NOT a card you paste on its own. It is the value of
+#                `options:` inside the room card's auto-entities filter
+#                (see parts/02-room-card/room-card.yaml).
+# Needs:         custom:bar-card (vogon1/bar-card), card-mod
+
+type: custom:bar-card
+
+# entity_row makes bar-card render as a row inside the room's entities card
+# instead of as a standalone card. It sets its own background transparent and
+# drops its shadow — but NOT its border, which is what gives each battery its
+# own outline inside the room card. That outline is deliberate.
+entity_row: true
+
+height: 30px
+
+# The bar's share of the row's width. The name gets the remaining 62%.
+# Without this, the bar fills whatever is left after the name, so rows with
+# long and short names end up with different bar lengths.
+width: 38%
+
+decimal: 1
+unit_of_measurement: "%"
+min: 0
+max: 100
+
+positions:
+  icon: outside     # icon sits left of the bar
+  name: outside     # name sits left of the bar
+  value: inside     # percentage sits inside the bar, right-aligned
+  indicator: "off"
+  minmax: "off"
+
+# ORDER MATTERS. bar-card's bounds are inclusive at both ends and the loop has
+# no break, so on an overlap the LAST matching rule wins. Written descending,
+# these give: <=10 red, 11-25 amber, >25 green.
+# Written ascending, a value of exactly 10 would come out amber.
+severity:
+  - from: 25
+    to: 100
+    color: "#66bb6a"            # deliberately NOT var(--success-color) - see shared/README.md
+    icon: mdi:battery
+  - from: 10
+    to: 25
+    color: var(--warning-color)
+    icon: mdi:battery-30
+  - from: 0
+    to: 10
+    color: var(--error-color)
+    icon: mdi:battery-alert
+
+card_mod:
+  style: |-
+    {% set v = states(config.entity) | float(-1) %}
+    {% set c = '--disabled-color' if v < 0 else ('--error-color' if v <= 10 else ('--warning-color' if v <= 25 else '--success-color')) %}
+    /* entity_row zeroes this padding; these values restore the proportions.
+       At 0 the bar fills the full row height and the icon jams against the edge. */
+    #states {
+      padding: 13px 14px 13px 16px !important;
+    }
+    bar-card-card {
+      margin-right: 0 !important;
+    }
+    /* Square on the left, rounded on the right. Rounding the left edge clips
+       the fill on a nearly-flat battery - at 0.5% the marker disappears. */
+    bar-card-backgroundbar,
+    bar-card-currentbar,
+    bar-card-contentbar,
+    bar-card-targetbar,
+    bar-card-animationbar {
+      border-radius: 0 4px 4px 0 !important;
+    }
+    /* bar-card hard-codes bar-card-iconbar { color: var(--ha-icon-color) } and
+       severity.icon only changes the icon's SHAPE, never its colour.
+       !important is required: bar-card injects its stylesheet AFTER card-mod's,
+       so same-specificity rules lose on source order. */
+    bar-card-iconbar {
+      color: var({{ c }}) !important;
+      width: 24px !important;
+      height: 24px !important;
+    }
+    bar-card-iconbar ha-icon,
+    bar-card-iconbar ha-state-icon {
+      color: var({{ c }}) !important;
+      --mdc-icon-color: var({{ c }}) !important;
+    }
+    bar-card-name {
+      margin: 0 0 0 14px !important;
+      font-size: 15px !important;
+    }
+    bar-card-value {
+      margin-right: 12px !important;
+      font-size: 14px !important;
+      color: var(--primary-text-color) !important;
+    }

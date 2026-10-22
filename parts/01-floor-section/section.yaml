@@ -1,0 +1,40 @@
+# Part 1 · Floor section
+# Explained in: parts/01-floor-section/README.md
+# Where it goes: in a `sections` view's `sections:` list, one copy per floor.
+# Needs:         custom:mushroom-title-card (title only - swap for a native
+#                `heading` card if you'd rather not install Mushroom)
+#
+# Search this file for CHANGE.
+
+type: grid
+
+# Span the full width of the view so the room cards inside can flow 3-across
+# on a desktop and collapse to 1 on a phone. With max_columns: 3 on the view,
+# this section's own grid is 36 columns wide; a room card with no grid_options
+# takes the default 12, which is how you get three per row.
+column_span: 3
+
+# A faint tint so each floor reads as one block without needing a border.
+background:
+  color: accent
+  opacity: 10
+
+cards:
+  # The floor name.
+  - type: custom:mushroom-title-card
+    title: Top Floor            # CHANGE: your floor name
+    grid_options:
+      columns: full
+      rows: auto
+    card_mod:
+      style: |-
+        :host {
+          --mush-title-padding: 4px 8px;
+        }
+
+  # Then one room card per room on this floor - see Part 2.
+  # Paste parts/02-room-card/room-card.yaml here, once per room, changing the
+  # title and the `area:` each time.
+  #
+  # - type: custom:auto-entities
+  #   ...
