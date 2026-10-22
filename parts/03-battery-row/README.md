@@ -42,6 +42,7 @@ Four `card_mod` fixes. All four are explained in full, with the reasoning, in [s
 2. **Corner radius** — bar-card falls back to `--ha-card-border-radius`, which many themes never set, so it computes to `0`. Set to `0 4px 4px 0`: **square on the left on purpose**, because rounding that edge clips the fill on a nearly-flat battery.
 3. **Row padding** — `entity_row: true` zeroes it. At `0` the bar fills the full row height and the icon jams against the card edge. `13px 14px 13px 16px` restores the proportions.
 4. **Fill colour** — the green is `#66bb6a`, not `var(--success-color)`. The latter gives the percentage only 5.58:1 contrast; this gives 7.79:1. [The measurements](../../shared/README.md#contrast-why-the-green-is-not---success-color).
+5. **Trimmed the name** — every battery sensor here is called "… Battery", which is pure noise in a card already titled with the room and full of batteries. bar-card's `name` is a plain string, so the real text is hidden and a trimmed copy written back with a pseudo-element. **No entity is renamed** — it's display-only, and only on this view. [How, and the two traps](../../shared/README.md#trimming-the-name-without-renaming-anything).
 
 ## Known rough edges
 

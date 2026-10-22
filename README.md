@@ -44,7 +44,7 @@ shared/
 |---|---|---|---|
 | 1 | [Floor section](parts/01-floor-section/README.md) | One tinted, full-width block per floor, with the floor's name | native `grid` section + Mushroom title |
 | 2 | [Room card](parts/02-room-card/README.md) | One titled card per room, filled from the area registry, lowest battery first | `custom:auto-entities` + native `entities` |
-| 3 | [Battery row](parts/03-battery-row/README.md) | One battery: coloured icon, name, and a bar with the percentage inside it | `custom:bar-card` + `card-mod` |
+| 3 | [Battery row](parts/03-battery-row/README.md) | One battery: coloured icon, trimmed name, and a bar with the percentage inside it | `custom:bar-card` + `card-mod` |
 
 They nest, outermost first:
 

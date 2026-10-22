@@ -11,6 +11,7 @@ Four things in this recipe are not obvious from any card's documentation. If you
 | [The corners were square because of an unset variable](#the-corners-were-square-because-of-an-unset-variable) | Part 3 |
 | [Severity order, and why descending](#severity-order-and-why-descending) | Part 3 |
 | [Contrast: why the green is not `--success-color`](#contrast-why-the-green-is-not---success-color) | Part 3 |
+| [Trimming the name without renaming anything](#trimming-the-name-without-renaming-anything) | Part 3 |
 
 ---
 
@@ -129,6 +130,41 @@ Two things worth taking away:
 2. **`--error-color` fails against both black (4.29:1) and white (4.29:1).** It gets away with it here only because red never appears above 10%, where the fill is a stub at the far left and the text is over the pale track. If you move the value outside the bar, or change the thresholds, re-check this.
 
 The icon keeps the saturated `--success-color`, so the severity colour still reads strongly at a glance; only the bar fill is lightened.
+
+## Trimming the name without renaming anything
+
+Battery sensors are usually called "Window **Battery**", "Smoke Detector **Battery**". In a card already titled with the room, where every row is a battery, that word is noise on every line.
+
+The obvious fix — renaming the entities — is the wrong one. Those names are doing useful work everywhere else: other dashboards, voice assistants, notifications. The word is only redundant *here*.
+
+bar-card picks the name like this (`src/bar-card.ts`):
+
+```js
+const name = config.name ? config.name : state.attributes.friendly_name;
+```
+
+`name` is a plain string. bar-card has **no template support at all** — no `[[[ ]]]`, nothing — and auto-entities applies one `options` block to every matched entity, so a single static `name` would label every row identically. Neither can give you a per-row computed name.
+
+So hide the real text and write a trimmed copy back with a pseudo-element:
+
+```css
+{% set fn = state_attr(config.entity,'friendly_name') %}
+{% set nm = fn | replace(' Battery Level','') | replace(' Battery level','') | replace(' Battery','') | trim %}
+bar-card-name { font-size: 0 !important; }
+bar-card-name::after {
+  content: "{{ nm if nm else fn }}";
+  font-size: 15px !important;
+}
+```
+
+Display-only. Nothing outside this view changes, and the rows stay self-maintaining.
+
+**Two traps worth knowing**, both found by reading the rendered names back out of the DOM rather than looking at the page:
+
+1. **Integrations disagree on capitalisation.** Zigbee sensors end in "Battery"; Home Assistant companion-app sensors end in "Battery level", lowercase *l*. A chain handling only `' Battery Level'` and `' Battery'` leaves "Darren Pixel 7 Pro **level**" behind. Order the replaces longest-first.
+2. **Some entities are called nothing else.** A robot vacuum's battery sensor can have the friendly name "Battery Level" in full, so stripping leaves an empty string and the row renders blank. The `nm if nm else fn` fallback keeps the original in that case.
+
+The trade-off: the name stops being real selectable text, and a tooltip still shows the untrimmed value.
 
 ---
 

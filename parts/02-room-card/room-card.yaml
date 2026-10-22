@@ -112,6 +112,17 @@ filter:
               font-size: 14px !important;
               color: var(--primary-text-color) !important;
             }
+            /* Cosmetic only - strips the trailing "Battery" from the displayed
+               name. The entities are NOT renamed. See parts/03-battery-row/. */
+            {% set fn = state_attr(config.entity,'friendly_name') %}
+            {% set nm = fn | replace(' Battery Level','') | replace(' Battery level','') | replace(' Battery','') | trim %}
+            bar-card-name {
+              font-size: 0 !important;
+            }
+            bar-card-name::after {
+              content: "{{ nm if nm else fn }}";
+              font-size: 15px !important;
+            }
 
   # Keep out anything that charges itself - phones, tablets, laptops, robot
   # vacuums, wearables. They report a battery percentage but they are never
